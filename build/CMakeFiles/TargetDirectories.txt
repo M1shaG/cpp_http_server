@@ -1,3 +1,0 @@
-/home/mishag/programming/cpp_http_server/build/CMakeFiles/hello.dir
-/home/mishag/programming/cpp_http_server/build/CMakeFiles/edit_cache.dir
-/home/mishag/programming/cpp_http_server/build/CMakeFiles/rebuild_cache.dir

@@ -1,4 +1,4 @@
-#include <http_tcpServer_linux.h>
+#include "http_tcpServer_linux.h"
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -14,21 +14,21 @@ namespace http
         if(m_socket < 0) {
             std::cerr << "Cannot create socket"; 
             return 1;
-        }
-
-        return 0;   
+        }   
 
         if(bind(m_socket, (sockaddr *)&m_socketAddress, m_socketAddress_len) < 0) {
             std::cerr << "Cannot connect socket to address";
             return 1;
         }
+
+        return 0;
     }
 
     int TcpServer::closeServer()
     {
         close(m_socket);
         close(m_new_socket);
-        return;
+        return 0;
     }
 
     void TcpServer::startListen()
@@ -86,7 +86,33 @@ namespace http
         }
     }
 
-    TcpServer::TcpServer(std::string ip_address, int port) : m_ip_address(ip_address), m_port(port), m_socketAddress_len(sizeof(m_socketAddress))
+    std::string TcpServer::buildResponse()
+    {
+        std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
+        std::ostringstream ss;
+        ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
+           << htmlFile;
+
+        return ss.str();
+    }
+
+    void TcpServer::sendResponse() 
+    {
+        long bytesSent;
+
+        bytesSent = write(m_new_socket, m_serverMessage.c_str(), m_serverMessage.size());
+
+        if(bytesSent == m_serverMessage.size())
+        {
+            std::cout << "------ Server Response sent to client ------\n\n" << std::endl;
+        }
+        else
+        {
+            std::cerr << "Error sending response to client" << std::endl;
+        }
+    }
+
+    TcpServer::TcpServer(std::string ip_address, int port) : m_ip_address(ip_address), m_port(port), m_socketAddress_len(sizeof(m_socketAddress)), m_serverMessage(buildResponse())
     {
         m_socketAddress.sin_family = AF_INET;
         m_socketAddress.sin_port = htons(m_port);
